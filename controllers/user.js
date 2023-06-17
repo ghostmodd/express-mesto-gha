@@ -18,16 +18,24 @@ function getUser(req, res) {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
-      res.send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-      });
+      if (user) {
+        res.send({
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          _id: user._id,
+        });
+      } else {
+        const error = new Error('The inputted user does not exist');
+        error.name = 'InputData';
+        throw error;
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         errCode = 400;
+      } else if (err.name === 'InputData') {
+        errCode = 404;
       }
       res.status(errCode).send({ message: `${err.message}` });
     });
