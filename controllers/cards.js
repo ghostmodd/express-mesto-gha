@@ -36,13 +36,22 @@ function createCard(req, res) {
 function deleteCard(req, res) {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-    .then(() => {
-      res.send({ status: 'OK' });
+    .then((result) => {
+      if (result) {
+        res.send({ status: 'OK' });
+      } else {
+        const error = new Error('The inputted card does not exist');
+        error.name = 'InputData';
+        throw error;
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
+        errCode = 400;
+      } else if (err.name === 'InputData') {
         errCode = 404;
       }
+
       res.status(errCode).send({ message: `${err.message}` });
     });
 }
@@ -57,10 +66,18 @@ function likeCard(req, res) {
     { new: true },
   )
     .then((result) => {
-      res.send(result);
+      if (result) {
+        res.send(result);
+      } else {
+        const error = new Error('The inputted card does not exist');
+        error.name = 'InputData';
+        throw error;
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
+        errCode = 400;
+      } else if (err.name === 'InputData') {
         errCode = 404;
       }
 
@@ -78,10 +95,18 @@ function dislikeCard(req, res) {
     { new: true },
   )
     .then((result) => {
-      res.send(result);
+      if (result) {
+        res.send(result);
+      } else {
+        const error = new Error('The inputted card does not exist');
+        error.name = 'InputData';
+        throw error;
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
+        errCode = 400;
+      } else if (err.name === 'InputData') {
         errCode = 404;
       }
 

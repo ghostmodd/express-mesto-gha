@@ -27,7 +27,7 @@ function getUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        errCode = 404;
+        errCode = 400;
       }
       res.status(errCode).send({ message: `${err.message}` });
     });
