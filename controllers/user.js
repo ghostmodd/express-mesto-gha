@@ -1,6 +1,8 @@
 const User = require('../models/user');
 
-let errCode = 500;
+const defaultErrCode = 500;
+const notFoundErrCode = 404;
+const incorrectInputErrCode = 400;
 
 function getAllUsers(req, res) {
   User.find({})
@@ -9,8 +11,8 @@ function getAllUsers(req, res) {
         usersList: users,
       });
     })
-    .catch((err) => {
-      res.status(errCode).send({ message: `${err.message}` });
+    .catch(() => {
+      res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -33,11 +35,12 @@ function getUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
       } else if (err.name === 'InputData') {
-        errCode = 404;
+        res.status(notFoundErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
@@ -51,10 +54,10 @@ function createUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
@@ -83,10 +86,10 @@ function updateUserInfo(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
@@ -112,10 +115,10 @@ function updateAvatar(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 

@@ -1,6 +1,8 @@
 const Card = require('../models/card');
 
-let errCode = 500;
+const defaultErrCode = 500;
+const notFoundErrCode = 404;
+const incorrectInputErrCode = 400;
 
 function getAllCards(req, res) {
   Card.find({})
@@ -10,8 +12,8 @@ function getAllCards(req, res) {
         cardList,
       });
     })
-    .catch((err) => {
-      res.status(errCode).send({ message: `${err.message}` });
+    .catch(() => {
+      res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -26,10 +28,11 @@ function createCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+        return;
       }
 
-      res.status(errCode).send({ message: `${err.message}` });
+      res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -47,12 +50,12 @@ function deleteCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
       } else if (err.name === 'InputData') {
-        errCode = 404;
+        res.status(notFoundErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
@@ -76,12 +79,12 @@ function likeCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
       } else if (err.name === 'InputData') {
-        errCode = 404;
+        res.status(notFoundErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
@@ -105,12 +108,12 @@ function dislikeCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        errCode = 400;
+        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
       } else if (err.name === 'InputData') {
-        errCode = 404;
+        res.status(notFoundErrCode).send({ message: `${err.message}` });
+      } else {
+        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
       }
-
-      res.status(errCode).send({ message: `${err.message}` });
     });
 }
 
