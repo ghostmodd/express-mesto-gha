@@ -6,7 +6,6 @@ const { cardsRouter } = require('./routes/cards');
 const { usersRouter } = require('./routes/users');
 const { login, createUser } = require('./controllers/user');
 const authentication = require('./middlewares/auth');
-const handleErrors = require('./middlewares/handleErrors');
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
@@ -19,6 +18,9 @@ app.use('/signup', createUser);
 app.use(authentication);
 app.use('/cards', cardsRouter);
 app.use('/users', usersRouter);
-app.use(handleErrors);
 
 app.listen(PORT, 'localhost');
+
+app.use((err, req, res) => {
+  res.status(err.statusCode).send({ message: err.message });
+});
