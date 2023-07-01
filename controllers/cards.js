@@ -1,10 +1,10 @@
 const Card = require('../models/card');
+const DefaultError = require('../errors/DefaultError');
+const IncorrectInputError = require('../errors/IncorrectInputError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
 
-const defaultErrCode = 500;
-const notFoundErrCode = 404;
-const incorrectInputErrCode = 400;
-
-function getAllCards(req, res) {
+function getAllCards(req, res, next) {
   Card.find({})
     .populate('owner')
     .then((cardList) => {
@@ -13,11 +13,11 @@ function getAllCards(req, res) {
       });
     })
     .catch(() => {
-      res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
+      next(new DefaultError());
     });
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
@@ -28,38 +28,44 @@ function createCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
-        return;
+        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
 
-      res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
+      next(new DefaultError());
     });
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
+  const userId = req.user._id;
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
-    .then((result) => {
-      if (result) {
-        res.send({ status: 'OK' });
-      } else {
-        const error = new Error('The inputted card does not exist');
-        error.name = 'InputData';
-        throw error;
+
+  Card.findById({ cardId })
+    .then((card) => {
+      if (card.owner !== userId) {
+        next(new ConflictError('Вы не можете удалить карточку, так как не являетесь ее владельцем!'));
       }
+
+      Card.findByIdAndRemove(cardId)
+        .then((result) => {
+          if (result) {
+            res.send({ status: 'OK' });
+          } else {
+            next(new IncorrectInputError('Введенные данные не прошли валидацию'));
+          }
+        });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       } else if (err.name === 'InputData') {
-        res.status(notFoundErrCode).send({ message: `${err.message}` });
+        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
       } else {
-        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
+        next(new DefaultError());
       }
     });
 }
 
-function likeCard(req, res) {
+function likeCard(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
 
@@ -72,23 +78,21 @@ function likeCard(req, res) {
       if (result) {
         res.send(result);
       } else {
-        const error = new Error('The inputted card does not exist');
-        error.name = 'InputData';
-        throw error;
+        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       } else if (err.name === 'InputData') {
-        res.status(notFoundErrCode).send({ message: `${err.message}` });
+        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
       } else {
-        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
+        next(new DefaultError());
       }
     });
 }
 
-function dislikeCard(req, res) {
+function dislikeCard(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
 
@@ -101,18 +105,16 @@ function dislikeCard(req, res) {
       if (result) {
         res.send(result);
       } else {
-        const error = new Error('The inputted card does not exist');
-        error.name = 'InputData';
-        throw error;
+        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(incorrectInputErrCode).send({ message: `${err.message}` });
+        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       } else if (err.name === 'InputData') {
-        res.status(notFoundErrCode).send({ message: `${err.message}` });
+        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
       } else {
-        res.status(defaultErrCode).send({ message: 'На сервере произошла ошибка' });
+        next(new DefaultError());
       }
     });
 }
