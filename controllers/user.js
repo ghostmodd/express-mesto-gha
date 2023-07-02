@@ -20,7 +20,7 @@ function getAllUsers(req, res, next) {
 function getUser(req, res, next) {
   const userId = req.user._id;
 
-  User.findOne({ userId }).select('+password')
+  User.findOne({ userId })
     .then((user) => {
       if (!user.length > 0) {
         next(new NotFoundError('Ошибка: введенный пользователь не найден'));
@@ -71,7 +71,13 @@ function createUser(req, res, next) {
       })
         .then((user) => {
           res.send({
-            data: user,
+            data: {
+              _id: user._id,
+              email: user.email,
+              name: user.name,
+              about: user.about,
+              avatar: user.avatar,
+            },
           });
         })
         .catch((err) => {

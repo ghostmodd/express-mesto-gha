@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
+const urlRegexp = /^https?:\/\/[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]{5,}$/gm;
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -25,24 +26,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true,
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true,
     default: 'Исследователь',
   },
   avatar: {
     type: String,
-    required: true,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator(url) {
+        return urlRegexp.test(url);
+      },
+    },
   },
 });
 
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = (email, password) => {
   userSchema.find({ email })
     .then((user) => {
       if (!user) {
@@ -57,6 +60,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
 
           return jwt.sign({ _id: user._id }, 'simpleSecretKey', { expiresIn: '7d' });
         });
+      return true;
     });
 };
 
