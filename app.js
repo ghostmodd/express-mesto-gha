@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -27,3 +26,7 @@ app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, 'localhost');
+
+app.use('/', (req, res) => {
+  res.send({ message: 'Страница не найдена' });
+});

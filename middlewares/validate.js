@@ -6,7 +6,7 @@ const validateUserRegistrationBody = celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
-    avatar: Joi.string().uri().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').pattern(/^https?:\/\/[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]{5,}$/m),
   }),
 });
 
@@ -17,7 +17,21 @@ const validateUserLoginBody = celebrate({
   }),
 });
 
+const validateUserIdParams = celebrate({
+  params: Joi.object().keys(({
+    userId: Joi.string().length(24),
+  })),
+});
+
+const validateCardIdParams = celebrate({
+  params: Joi.object().keys(({
+    cardId: Joi.string().length(24),
+  })),
+});
+
 module.exports = {
   validateUserRegistrationBody,
   validateUserLoginBody,
+  validateUserIdParams,
+  validateCardIdParams,
 };

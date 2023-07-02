@@ -3,6 +3,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 
 function authentication(req, res, next) {
   const { token } = req.cookies;
+
   if (!token) {
     next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
   }

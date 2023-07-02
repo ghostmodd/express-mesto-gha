@@ -4,6 +4,7 @@ const DefaultError = require('../errors/DefaultError');
 const IncorrectInputError = require('../errors/IncorrectInputError');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const ConflictError = require('../errors/ConflictError');
 
 function getAllUsers(req, res, next) {
   User.find({})
@@ -82,6 +83,10 @@ function createUser(req, res, next) {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
+            if(err.code === 11000) {
+              next(new ConflictError('Ошибка: пользователь с введенным email уже существует'));
+            }
+
             next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
           } else {
             next(new DefaultError());
