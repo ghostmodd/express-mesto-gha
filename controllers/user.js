@@ -20,9 +20,9 @@ function getAllUsers(req, res, next) {
 function getUser(req, res, next) {
   const userId = req.user._id;
 
-  User.findOne({ userId })
+  User.findOne({ _id: userId })
     .then((user) => {
-      if (!user.length > 0) {
+      if (!user) {
         next(new NotFoundError('Ошибка: введенный пользователь не найден'));
       }
 
@@ -150,17 +150,18 @@ function updateAvatar(req, res, next) {
 }
 
 function login(req, res, next) {
-  const { email, password } = req;
+  const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password, next)
+  User.findUserByCredentials(email, password)
     .then((token) => {
       res.cookie('token', token, {
-        maxAge: '7d',
+        maxAge: '604800',
         httpOnly: true,
       });
+      res.send({ message: 'Успешно!' });
     })
     .catch(() => {
-      next(new UnauthorizedError('Ошибка: электронная почта или пороль введены некорректно'));
+      next(new UnauthorizedError('Ошибка: электронная почта или пароль введены некорректно'));
     });
 }
 

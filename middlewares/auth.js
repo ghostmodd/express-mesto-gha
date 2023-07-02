@@ -1,18 +1,17 @@
 const jwt = require('jsonwebtoken');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 function authentication(req, res, next) {
-  const { authorization } = req.headers;
-
-  if (!authorization && !authorization.startWith('BEARER')) {
-    return res.status(401).send({ message: 'Error: authorization required' });
+  const { token } = req.cookies;
+  if (!token) {
+    next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
   }
 
-  const token = authorization.replace('Bearer ', '');
   let payload;
   try {
     payload = jwt.verify(token, 'simpleSecretKey');
   } catch (err) {
-    return res.status(401).send({ message: 'Error: authorization required' });
+    next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
   }
 
   req.user = payload;

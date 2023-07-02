@@ -45,14 +45,14 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.statics.findUserByCredentials = (email, password) => {
-  userSchema.find({ email })
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return Promise.reject(new UnauthorizedError('Ошибка: электронная почта или пароль введены неправильно'));
       }
 
-      bcrypt.compare(password, user.password)
+      return bcrypt.compare(password, user.password)
         .then((result) => {
           if (!result) {
             return Promise.reject(new UnauthorizedError('Ошибка: не удалось авторизоваться'));
@@ -60,7 +60,6 @@ userSchema.statics.findUserByCredentials = (email, password) => {
 
           return jwt.sign({ _id: user._id }, 'simpleSecretKey', { expiresIn: '7d' });
         });
-      return true;
     });
 };
 
