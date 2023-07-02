@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const errorHandler = require('./middlewares/errorHandler');
-const { validateUserRegistrationBody, validateUserLoginBody } = require('./middlewares/validate');
+const NotFoundError = require('./errors/NotFoundError');
+const { validateUserRegistrationBody, validateUserLoginBody } = require('./middlewares/userValidation');
 const { cardsRouter } = require('./routes/cards');
 const { usersRouter } = require('./routes/users');
 const { login, createUser } = require('./controllers/user');
@@ -19,14 +20,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/signin', validateUserLoginBody, login);
 app.use('/signup', validateUserRegistrationBody, createUser);
-app.use(authentication);
-app.use('/cards', cardsRouter);
-app.use('/users', usersRouter);
+app.use('/cards', authentication, cardsRouter);
+app.use('/users', authentication, usersRouter);
+app.use((req, res, next) => {
+  next(new NotFoundError('Ошибка: страница не найдена!'));
+});
 app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, 'localhost');
-
-app.use('/', (req, res) => {
-  res.send({ message: 'Страница не найдена' });
-});

@@ -39,19 +39,22 @@ function deleteCard(req, res, next) {
   const userId = req.user._id;
   const { cardId } = req.params;
 
-  Card.findById({ cardId })
+  Card.findById(cardId)
     .then((card) => {
-      if (card.owner !== userId) {
-        next(new ConflictError('Вы не можете удалить карточку, так как не являетесь ее владельцем!'));
+      if (!card) {
+        return next(new NotFoundError('Ошибка: указанная вами карточка не найдена'));
       }
 
-      Card.findByIdAndRemove(cardId)
+      if (card.owner !== userId) {
+        return next(new ConflictError('Ошибка: Вы не можете удалить карточку, так как не являетесь ее владельцем!'));
+      }
+
+      return Card.findByIdAndRemove(cardId)
         .then((result) => {
           if (result) {
-            res.send({ status: 'OK' });
-          } else {
-            next(new IncorrectInputError('Введенные данные не прошли валидацию'));
+            return res.send({ status: 'OK' });
           }
+          return next(new IncorrectInputError('Ошибка: Введенные данные не прошли валидацию'));
         });
     })
     .catch((err) => {

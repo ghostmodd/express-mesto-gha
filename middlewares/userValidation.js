@@ -19,13 +19,7 @@ const validateUserLoginBody = celebrate({
 
 const validateUserIdParams = celebrate({
   params: Joi.object().keys(({
-    userId: Joi.string().length(24),
-  })),
-});
-
-const validateCardIdParams = celebrate({
-  params: Joi.object().keys(({
-    cardId: Joi.string().length(24),
+    userId: Joi.string().length(24).pattern(/[a-z0-9]{24}/m),
   })),
 });
 
@@ -33,5 +27,4 @@ module.exports = {
   validateUserRegistrationBody,
   validateUserLoginBody,
   validateUserIdParams,
-  validateCardIdParams,
 };

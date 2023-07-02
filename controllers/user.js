@@ -83,7 +83,7 @@ function createUser(req, res, next) {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            if(err.code === 11000) {
+            if (err.code === 11000) {
               next(new ConflictError('Ошибка: пользователь с введенным email уже существует'));
             }
 
