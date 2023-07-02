@@ -159,11 +159,7 @@ function login(req, res, next) {
 
   User.findUserByCredentials(email, password)
     .then((token) => {
-      res.cookie('token', token, {
-        maxAge: '604800',
-        httpOnly: true,
-      });
-      res.send({ message: 'Успешно!' });
+      res.send({ token });
     })
     .catch(() => {
       next(new UnauthorizedError('Ошибка: электронная почта или пароль введены некорректно'));

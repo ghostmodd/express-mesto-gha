@@ -9,7 +9,7 @@ const { validateUserRegistrationBody, validateUserLoginBody } = require('./middl
 const { cardsRouter } = require('./routes/cards');
 const { usersRouter } = require('./routes/users');
 const { login, createUser } = require('./controllers/user');
-const authentication = require('./middlewares/auth');
+const authentication = require('./middlewares/authentication');
 
 const app = express();
 const { PORT = 3000, DB_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
