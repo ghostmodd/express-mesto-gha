@@ -1,9 +1,9 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const DefaultError = require('../errors/DefaultError');
 const IncorrectInputError = require('../errors/IncorrectInputError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
 
 function getAllUsers(req, res, next) {
@@ -13,9 +13,7 @@ function getAllUsers(req, res, next) {
         usersList: users,
       });
     })
-    .catch(() => {
-      next(new DefaultError());
-    });
+    .catch(() => next(new DefaultError('На сервере произошла ошибка')));
 }
 
 function getUser(req, res, next) {
@@ -24,14 +22,12 @@ function getUser(req, res, next) {
   User.findOne({ _id: userId })
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('Ошибка: введенный пользователь не найден'));
+        return next(new NotFoundError('Ошибка: введенный пользователь не найден'));
       }
 
-      res.send({ user });
+      return res.send({ user });
     })
-    .catch(() => {
-      next(new DefaultError());
-    });
+    .catch(() => next(new DefaultError('На сервере произошла ошибка')));
 }
 
 function getUserById(req, res, next) {
@@ -39,24 +35,22 @@ function getUserById(req, res, next) {
   User.findById(userId)
     .then((user) => {
       if (user) {
-        res.send({
+        return res.send({
           name: user.name,
           about: user.about,
           avatar: user.avatar,
           _id: user._id,
         });
-      } else {
-        next(new NotFoundError('Ошибка: введенный пользователь не найден'));
       }
+
+      return next(new NotFoundError('Ошибка: введенный пользователь не найден'));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else if (err.name === 'InputData') {
-        next(new NotFoundError('Ошибка: введенный пользователь не найден'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new DefaultError('На сервере произошла ошибка'));
     });
 }
 
@@ -82,14 +76,12 @@ function createUser(req, res, next) {
           });
         })
         .catch((err) => {
-          if (err.name === 'ValidationError') {
-            if (err.code === 11000) {
-              next(new ConflictError('Ошибка: пользователь с введенным email уже существует'));
-            }
-
+          if (err.code === 11000) {
+            next(new ConflictError('Ошибка: пользователь с введенным email уже существует'));
+          } else if (err instanceof mongoose.Error.ValidationError) {
             next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
           } else {
-            next(new DefaultError());
+            next(new DefaultError('На сервере произошла ошибка'));
           }
         });
     });
@@ -98,10 +90,6 @@ function createUser(req, res, next) {
 function updateUserInfo(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
-
-  if (!name && !about) {
-    next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-  }
 
   User.findByIdAndUpdate(
     userId,
@@ -118,21 +106,17 @@ function updateUserInfo(req, res, next) {
       res.send(result);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.ValidationError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new DefaultError('На сервере произошла ошибка'));
     });
 }
 
 function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   const userId = req.user._id;
-
-  if (!avatar) {
-    next(new IncorrectInputError(''));
-  }
 
   User.findByIdAndUpdate(
     userId,
@@ -146,11 +130,11 @@ function updateAvatar(req, res, next) {
       res.send(result);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.ValidationError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new DefaultError('На сервере произошла ошибка'));
     });
 }
 
@@ -161,9 +145,7 @@ function login(req, res, next) {
     .then((token) => {
       res.send({ token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Ошибка: электронная почта или пароль введены некорректно'));
-    });
+    .catch((err) => next(err));
 }
 
 module.exports = {

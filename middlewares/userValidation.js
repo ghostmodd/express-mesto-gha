@@ -19,7 +19,7 @@ const validateUserLoginBody = celebrate({
 
 const validateUserIdParams = celebrate({
   params: Joi.object().keys(({
-    userId: Joi.string().length(24).pattern(/[a-z0-9]{24}/m),
+    userId: Joi.string().length(24).pattern(/[a-z0-9]{24}/m).required(),
   })),
 });
 

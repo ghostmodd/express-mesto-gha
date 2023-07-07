@@ -5,7 +5,7 @@ function authentication(req, res, next) {
   const { authorization } = req.body;
 
   if (!authorization || !authorization.startsWith('Bearer: ')) {
-    next(new UnauthorizedError('Ошибка: токен не передан!'));
+    return next(new UnauthorizedError('Ошибка: токен не передан!'));
   }
 
   const token = authorization.replace('Bearer: ', '');
@@ -14,7 +14,7 @@ function authentication(req, res, next) {
   try {
     payload = jwt.verify(token, 'simpleSecretKey');
   } catch (err) {
-    next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
+    return next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
   }
 
   req.user = payload;

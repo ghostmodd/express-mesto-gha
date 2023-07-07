@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const DefaultError = require('../errors/DefaultError');
 const IncorrectInputError = require('../errors/IncorrectInputError');
@@ -12,9 +13,7 @@ function getAllCards(req, res, next) {
         cardList,
       });
     })
-    .catch(() => {
-      next(new DefaultError());
-    });
+    .catch(() => next(new DefaultError('На сервере произошла ошибка')));
 }
 
 function createCard(req, res, next) {
@@ -27,11 +26,11 @@ function createCard(req, res, next) {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
+      if (err instanceof mongoose.Error.ValidationError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
 
-      next(new DefaultError());
+      return next(new DefaultError('На сервере произошла ошибка'));
     });
 }
 
@@ -45,26 +44,25 @@ function deleteCard(req, res, next) {
         return next(new NotFoundError('Ошибка: указанная вами карточка не найдена'));
       }
 
-      if (card.owner !== userId) {
+      if (card.owner.toString() !== userId) {
         return next(new ConflictError('Ошибка: Вы не можете удалить карточку, так как не являетесь ее владельцем!'));
       }
 
-      return Card.findByIdAndRemove(cardId)
+      return Card.deleteOne(card)
         .then((result) => {
           if (result) {
             return res.send({ status: 'OK' });
           }
-          return next(new IncorrectInputError('Ошибка: Введенные данные не прошли валидацию'));
+
+          return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
         });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else if (err.name === 'InputData') {
-        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
     });
 }
 
@@ -79,19 +77,17 @@ function likeCard(req, res, next) {
   )
     .then((result) => {
       if (result) {
-        res.send(result);
-      } else {
-        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
+        return res.send(result);
       }
+
+      return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else if (err.name === 'InputData') {
-        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
     });
 }
 
@@ -106,19 +102,17 @@ function dislikeCard(req, res, next) {
   )
     .then((result) => {
       if (result) {
-        res.send(result);
-      } else {
-        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
+        return res.send(result);
       }
+
+      return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
-      } else if (err.name === 'InputData') {
-        next(new NotFoundError('Ошибка: введеная карточка не найдена'));
-      } else {
-        next(new DefaultError());
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
+
+      return next(new NotFoundError('Ошибка: введеная карточка не найдена'));
     });
 }
 

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const urlRegexp = /^https?:\/\/[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]{5,}$/gm;
+
 const userSchema = new mongoose.Schema({
   email: {
     type: String,

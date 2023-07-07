@@ -14,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(url) {
-        return urlRegexp.test(url);
+        return !urlRegexp.test(url);
       },
     },
   },
@@ -30,7 +30,7 @@ const cardSchema = new mongoose.Schema({
   }],
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: () => Date.now(),
   },
 });
 
