@@ -15,5 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', indexRouter);
 app.use(errors());
 app.use(errorHandler);
+console.log('sss');
 
-app.listen(PORT, 'localhost');
+app.listen(PORT, () => {
+  console.log('Слушаем сервер')
+});
