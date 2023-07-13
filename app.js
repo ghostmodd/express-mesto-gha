@@ -1,24 +1,25 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const indexRouter = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
 const { reqLogger, errLogger } = require('./middlewares/logger');
 
 const app = express();
-const { PORT = 3001, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 mongoose.connect(DB_URL);
 
 const allowedCors = [
   'https://mesto-ghostmodd.nomoredomains.work',
   'http://mesto-ghostmodd.nomoredomains.work',
+  'http://localhost:3000',
 ];
 const allowedMethods = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(reqLogger);
 app.use((req, res, next) => {
   const { origin } = req.headers;
   const { method } = req;
@@ -36,7 +37,6 @@ app.use((req, res, next) => {
 
   return next();
 });
-app.use(reqLogger);
 app.use('/', indexRouter);
 app.use(errLogger);
 app.use(errors());
