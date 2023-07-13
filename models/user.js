@@ -5,8 +5,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const urlRegexp = /^https?:\/\/[0-9a-zA-Z/\-._~:?#[\]@!$&'()*+,;=]{5,}$/gm;
-
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -41,7 +39,7 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(url) {
-        return urlRegexp.test(url);
+        return /^https?:\/\/[0-9a-zA-Z/\-._~:?#[\]@!$&'()*+,;=]{5,}$/.test(url);
       },
     },
   },
