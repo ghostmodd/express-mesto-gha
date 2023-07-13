@@ -18,14 +18,20 @@ function getAllCards(req, res, next) {
 
 function createCard(req, res, next) {
   const { name, link } = req.body;
+
   const owner = req.user._id;
   Card.create({ name, link, owner })
+    .then((createdCard) => {
+      return createdCard.populate('owner');
+    })
     .then((newCardData) => {
       res.send({
         newCardData,
       });
     })
     .catch((err) => {
+      console.log(err)
+      err.status = 500;
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }
@@ -75,6 +81,7 @@ function likeCard(req, res, next) {
     { $addToSet: { likes: userId } },
     { new: true },
   )
+    .populate('owner')
     .then((result) => {
       if (result) {
         return res.send(result);
@@ -100,6 +107,7 @@ function dislikeCard(req, res, next) {
     { $pull: { likes: userId } },
     { new: true },
   )
+    .populate('owner')
     .then((result) => {
       if (result) {
         return res.send(result);

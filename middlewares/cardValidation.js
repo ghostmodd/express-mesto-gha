@@ -3,7 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const validateCreateCardBody = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().pattern(/^https?:\/\/[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]{5,}$/m),
+    link: Joi.string().required().pattern(/^https?:\/\/[0-9a-zA-Z\/\-._~:?#[\]@!$&'()*+,;=]{5,}$/m),
   }).unknown(true),
 });
 

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 function authentication(req, res, next) {
-  const { authorization } = req.body;
+  const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer: ')) {
     return next(new UnauthorizedError('Ошибка: токен не передан!'));
