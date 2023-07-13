@@ -21,17 +21,13 @@ function createCard(req, res, next) {
 
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((createdCard) => {
-      return createdCard.populate('owner');
-    })
+    .then((createdCard) => createdCard.populate('owner'))
     .then((newCardData) => {
       res.send({
         newCardData,
       });
     })
     .catch((err) => {
-      console.log(err)
-      err.status = 500;
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new IncorrectInputError('Ошибка: введенные данные не прошли валидацию'));
       }

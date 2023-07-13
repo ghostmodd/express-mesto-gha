@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const urlRegexp = /^https?:\/\/[0-9a-zA-Z\/\-._~:?#[\]@!$&'()*+,;=]{5,}$/gm;
+const urlRegexp = /^https?:\/\/[0-9a-zA-Z/\-._~:?#[\]@!$&'()*+,;=]{5,}$/gm;
 
 const userSchema = new mongoose.Schema({
   email: {
