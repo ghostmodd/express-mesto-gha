@@ -6,6 +6,11 @@ const { usersRouter } = require('./users');
 const { login, createUser } = require('../controllers/user');
 const authentication = require('../middlewares/authentication');
 
+indexRouter.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 indexRouter.use('/signin', validateUserLoginBody, login);
 indexRouter.use('/signup', validateUserRegistrationBody, createUser);
 indexRouter.use('/users', authentication, usersRouter);

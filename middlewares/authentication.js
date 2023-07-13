@@ -12,7 +12,7 @@ function authentication(req, res, next) {
 
   let payload;
   try {
-    payload = jwt.verify(token, 'simpleSecretKey');
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     return next(new UnauthorizedError('Ошибка: необходимо авторизоваться!'));
   }
