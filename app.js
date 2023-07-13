@@ -13,7 +13,6 @@ mongoose.connect(DB_URL);
 const allowedCors = [
   'https://mesto-ghostmodd.nomoredomains.work',
   'http://mesto-ghostmodd.nomoredomains.work',
-  'http://localhost:3000',
 ];
 const allowedMethods = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
