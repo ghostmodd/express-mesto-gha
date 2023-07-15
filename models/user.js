@@ -1,9 +1,10 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+
+const { JWT_SECRET = 'simpleSecretKey' } = process.env;
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -58,7 +59,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
             return Promise.reject(new UnauthorizedError('Ошибка: не удалось авторизоваться'));
           }
 
-          return jwt.sign({ _id: user._id }, 'simpleSecretKey', { expiresIn: '7d' });
+          return jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
         });
     });
 };
